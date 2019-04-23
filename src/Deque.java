@@ -3,7 +3,7 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-    private static final int INITIAL_CAPACITY = 5;
+    private static final int INITIAL_CAPACITY = 8;
     Object[] arr;
     int head;
     int tail;
@@ -11,21 +11,18 @@ public class Deque<Item> implements Iterable<Item> {
     // construct an empty deque
     public Deque() {
         this.arr = new Object[INITIAL_CAPACITY];
-        head = (INITIAL_CAPACITY/2);
-        tail = (INITIAL_CAPACITY/2);
-
-        System.out.println("Head = " + head);
-        System.out.println("Tail = " + tail);
+        head = INITIAL_CAPACITY/2 - 1;
+        tail = INITIAL_CAPACITY/2;
     }
 
     // is the deque empty?
     public boolean isEmpty() {
-        return head == tail;
+        return (tail - head) == 1;
     }
 
     // return the number of items on the deque
     public int size() {
-        return tail - head;
+        return tail - head - 1;
     }
 
     // add the item to the front
@@ -34,7 +31,7 @@ public class Deque<Item> implements Iterable<Item> {
             throw new IllegalArgumentException();
 
         if (head == 0)
-            resizeArr();
+            resizeArr(2 * arr.length);
 
         arr[head--] = item;
     }
@@ -45,10 +42,9 @@ public class Deque<Item> implements Iterable<Item> {
             throw new IllegalArgumentException();
 
         if (tail == arr.length - 1)
-            resizeArr();
+            resizeArr(2 * arr.length);
 
         arr[tail++] = item;
-
     }
 
     // remove and return the item from the front
@@ -56,9 +52,12 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new NoSuchElementException();
 
-        Item firstItem = (Item) arr[head];
-        arr[head] = null;
-        head++;
+        int size = size();
+        if (size>0 && size > INITIAL_CAPACITY && size == arr.length / 4)
+            resizeArr(arr.length/2);
+
+        Item firstItem = (Item) arr[head + 1];
+        arr[++head] = null;
 
         return firstItem;
     }
@@ -68,9 +67,13 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new NoSuchElementException();
 
-        Item lastItem = (Item) arr[tail];
-        arr[tail] = null;
-        tail--;
+        int size = size();
+        if (size>0 && size > INITIAL_CAPACITY && size == arr.length / 4)
+            resizeArr(arr.length/2);
+
+        Item lastItem = (Item) arr[tail - 1];
+        arr[--tail] = null;
+
         return lastItem;
     }
 
@@ -82,40 +85,62 @@ public class Deque<Item> implements Iterable<Item> {
 
             @Override
             public boolean hasNext() {
-                return current < tail;
+                return current < tail - 1;
             }
 
             @Override
             public Item next() {
-                if(!hasNext())
+                if (!hasNext())
                     throw new NoSuchElementException();
                 return (Item) arr[++current];
             }
         };
     }
 
-    private void resizeArr() {
-        System.out.println("Resizing array");
-        Object[] tempArr = new Object[2 * this.arr.length];
-        int offset = (tempArr.length-size())/2;
-        for (int i = offset; i < size(); i++)
-            tempArr[i] = this.arr[i];
-        head = offset;
-        tail = offset+size();
+    private void resizeArr(int size) {
+        Object[] tempArr = new Object[size];
+
+        int oldSize=size();
+        int oldHead=head;
+        int oldTail=tail;
+
+        head = tempArr.length / 4 ; //Needs to be changed. Always closer to head
+        tail = head + oldSize + 1;
+
+        for (int i = oldHead+1, j=0; i < oldTail; i++,j++) {
+            tempArr[j + head] = this.arr[i];
+        }
+
+        this.arr = tempArr;
     }
 
     // unit testing (optional)
     public static void main(String[] args) {
         Deque<String> deque = new Deque<String>();
 
-        deque.addFirst("1");
-        deque.addLast("2");
         deque.addFirst("0");
+        deque.addLast("1");
+        deque.addFirst("2");
         deque.addLast("3");
+        deque.addFirst("4");
+        deque.addLast("5");
+        deque.addFirst("6");
+        deque.addLast("7");
+        deque.addFirst("8");
+        deque.addLast("9");
 
         deque.removeFirst();
         deque.removeLast();
-        for(String elem : deque)
+        deque.removeLast();
+        deque.removeFirst();
+        deque.removeLast();
+        deque.removeFirst();
+        deque.removeLast();
+        deque.removeFirst();
+        deque.removeLast();
+        deque.removeFirst();
+
+        for (String elem : deque)
             System.out.print(elem + " ");
         System.out.println();
 
