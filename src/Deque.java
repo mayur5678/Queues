@@ -53,7 +53,7 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException();
 
         int size = size();
-        if (size>0 && size > INITIAL_CAPACITY && size == arr.length / 4)
+        if (size>0 && size <= arr.length / 4 && arr.length/2 >= INITIAL_CAPACITY)
             resizeArr(arr.length/2);
 
         Item firstItem = (Item) arr[head + 1];
@@ -68,7 +68,7 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException();
 
         int size = size();
-        if (size>0 && size > INITIAL_CAPACITY && size == arr.length / 4)
+        if (size>0 && size <= arr.length / 4 && arr.length/2 >= INITIAL_CAPACITY)
             resizeArr(arr.length/2);
 
         Item lastItem = (Item) arr[tail - 1];
@@ -107,7 +107,7 @@ public class Deque<Item> implements Iterable<Item> {
         head = tempArr.length / 4 ; //Needs to be changed. Always closer to head
         tail = head + oldSize + 1;
 
-        for (int i = oldHead+1, j=0; i < oldTail; i++,j++) {
+        for (int i = oldHead, j=0; i <= oldTail; i++,j++) {
             tempArr[j + head] = this.arr[i];
         }
 
@@ -129,11 +129,7 @@ public class Deque<Item> implements Iterable<Item> {
         deque.addFirst("8");
         deque.addLast("9");
 
-        deque.removeFirst();
-        deque.removeLast();
-        deque.removeLast();
-        deque.removeFirst();
-        deque.removeLast();
+
         deque.removeFirst();
         deque.removeLast();
         deque.removeFirst();
